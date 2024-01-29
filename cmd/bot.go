@@ -48,6 +48,10 @@ func main() {
 	flag.StringVar(&cfg.URL, "URL", os.Getenv("URL"), "URL")
 	flag.StringVar(&cfg.DSN, "db-dsn", os.Getenv("DSN_BOT"), "Postgres DSN")
 
+	if cfg.BOT_TOKEN == "" || cfg.URL == "" || cfg.DSN == "" {
+		log.Fatal("BOT_TOKEN, URL and DSN_BOT are required")
+	}
+
 	bot_api, err := tgbotapi.NewBotAPI(cfg.BOT_TOKEN)
 	if err != nil {
 		log.Panic(err)
