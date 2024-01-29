@@ -1,0 +1,62 @@
+name: Go Test Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+ 
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.21.6
+      
+    - name: Test
+      run: go test -v ./...
+      
+    - name: Build
+      run: go build -v -o sojiro-binary ./cmd/bot
+
+    - uses: actions/upload-artifact@v3
+      with:
+          name: sojiro-artifact
+          path: ./sojiro-binary
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: sojiro-artifact
+      - name: Deploy to server
+        uses: appleboy/scp-action@master
+        with:
+           host: ${{ secrets.HOST }}
+           username: ${{ secrets.USERNAME }}
+           password: ${{ secrets.PASSWORD }}
+           port: ${{ secrets.PORT }}
+           source: ./sojiro-binary
+           target: "/home/${{ secrets.USERNAME }}/sojiro/sojirobot"
+
+      - name: Start Sojirobot service and Reload Nginx
+        uses: appleboy/ssh-action@master
+        with:
+           host: ${{ secrets.HOST }}
+           username: ${{ secrets.USERNAME }}
+           password: ${{ secrets.PASSWORD }}
+           port: ${{ secrets.PORT }}
+           script: |
+               cd /home/${{ secrets.USERNAME }}/sojiro/sojirobot
+               chmod +x sojiro-binary
+               echo ${{ secrets.PASSWORD }} | sudo -S systemctl stop sojirobot.service 
+               echo ${{ secrets.PASSWORD }} | sudo -S systemctl start sojirobot.service 
+               echo ${{ secrets.PASSWORD }} | sudo -S systemctl reload nginx
+
+ 
