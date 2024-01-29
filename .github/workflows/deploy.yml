@@ -20,7 +20,7 @@ jobs:
       run: go test -v ./...
       
     - name: Build
-      run: go build -v -o sojiro-binary ./cmd/bot
+      run: go build -v -o sojiro-binary ./cmd
 
     - uses: actions/upload-artifact@v3
       with:
