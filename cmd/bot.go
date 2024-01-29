@@ -54,7 +54,7 @@ func main() {
 
 	bot_api, err := tgbotapi.NewBotAPI(cfg.BOT_TOKEN)
 	if err != nil {
-		log.Panic(err)
+		log.Fatal(err)
 	}
 
 	u := tgbotapi.NewUpdate(0)
