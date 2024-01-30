@@ -4,10 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"flag"
+	"fmt"
 	"github/Hopertz/is_up/postgres"
 	"log"
 	"log/slog"
 	"os"
+	"strings"
 	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -35,7 +37,6 @@ type bot struct {
 	models  postgres.Models
 }
 
-const start_txt = "Use this bot to check if iim.sojirotech.com api service is up or down. Type /stop to stop receiving notifications`"
 const stop_txt = "Sorry to see you leave You wont be receiving notifications. Type /start to receive"
 
 const unknown_cmd = "i don't know that command"
@@ -47,6 +48,8 @@ func main() {
 	flag.StringVar(&cfg.BOT_TOKEN, "BOT-KEY", os.Getenv("BOT_TOKEN"), "BOT TOKEN")
 	flag.StringVar(&cfg.URL, "URL", os.Getenv("URL"), "URL")
 	flag.StringVar(&cfg.DSN, "db-dsn", os.Getenv("DSN_BOT"), "Postgres DSN")
+
+	start_txt := fmt.Sprintf("This bot checks if %s api service is up or down.\nType /stop to stop receiving notifications.\nType /help to get help text.", strings.TrimRight(cfg.URL, "v1/ping"))
 
 	if cfg.BOT_TOKEN == "" || cfg.URL == "" || cfg.DSN == "" {
 		log.Fatal("BOT_TOKEN, URL and DSN_BOT are required")
@@ -143,7 +146,6 @@ func main() {
 		if _, err := bot.bot_api.Send(msg); err != nil {
 			slog.Error("Bot", "error sending msg", err.Error())
 		}
-
 
 	}
 }
