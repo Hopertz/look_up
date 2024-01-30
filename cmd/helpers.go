@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"log/slog"
 	"net/http"
+	"strings"
 	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -21,6 +23,8 @@ func (b *bot) Poller(url string) {
 
 	state := UP
 
+	site := strings.TrimRight(b.config.URL, "v1/ping")
+
 	for range tick.C {
 
 		client := &http.Client{
@@ -36,7 +40,7 @@ func (b *bot) Poller(url string) {
 
 		if resp.StatusCode != 200 {
 			if state == UP {
-				err := b.sendMsgToTelegramIds("Site is down!!")
+				err := b.sendMsgToTelegramIds(fmt.Sprintf("%s is down 😞 (bring me up please).", site))
 
 				if err != nil {
 					slog.Error("Poller", "error sending msg", err.Error())
@@ -48,7 +52,7 @@ func (b *bot) Poller(url string) {
 		}
 
 		if state == DOWN {
-			err = b.sendMsgToTelegramIds("Site is up")
+			err = b.sendMsgToTelegramIds(fmt.Sprintf("%s is up and running 🔥", site))
 			if err != nil {
 				slog.Error("Poller", "error sending msg", err.Error())
 			}
