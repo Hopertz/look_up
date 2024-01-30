@@ -140,6 +140,11 @@ func main() {
 			msg.Text = unknown_cmd
 		}
 
+		if _, err := bot.bot_api.Send(msg); err != nil {
+			slog.Error("Bot", "error sending msg", err.Error())
+		}
+
+
 	}
 }
 
