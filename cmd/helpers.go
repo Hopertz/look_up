@@ -15,14 +15,16 @@ const (
 
 func (b *bot) Poller(url string) {
 
-	tick := time.NewTicker(5 * time.Second)
+	tick := time.NewTicker(30 * time.Second)
+
+	defer tick.Stop()
 
 	state := UP
 
 	for range tick.C {
 
 		client := &http.Client{
-			Timeout: 5 * time.Second,
+			Timeout: 9 * time.Second,
 		}
 
 		resp, err := client.Get(url)
@@ -54,7 +56,6 @@ func (b *bot) Poller(url string) {
 			state = UP
 
 		}
-
 
 	}
 }
